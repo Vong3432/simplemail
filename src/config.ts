@@ -1,6 +1,8 @@
 import dotenv from 'dotenv'
 
-dotenv.config()
+if (process.env.NODE_ENV !== 'production') {
+    dotenv.config();
+}
 
 export default {
     concurrency: parseInt(process.env.QUEUE_CONCURRENCY || "1"),
