@@ -9,7 +9,7 @@ export default {
     queueName: process.env.QUEUE_NAME || "mailbot",
     taskQueueName: process.env.TASKS_QUEUE_NAME || "tasks",
     webhookQueueName: process.env.WEBHOOK_QUEUE_NAME || "webhooks",
-    connection: {
+    connection: process.env.NODE_ENV === 'production' ? {
         host: process.env.REDIS_HOST,
         port: parseInt(process.env.REDIS_PORT || "6379"),
         password: process.env.REDIS_PASSWORD,
@@ -18,6 +18,9 @@ export default {
         tls: {
             rejectUnauthorized: false,
         },
+    } : {
+        host: process.env.REDIS_HOST,
+        port: parseInt(process.env.REDIS_PORT || "6379"),
     },
     smtpAppPass: process.env.APP_PASSWORD,
     fromEmail: process.env.FROM_EMAIL,

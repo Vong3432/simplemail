@@ -52,6 +52,8 @@ export const taskWorker = new Worker<{
                     result,
                     webhookCallbackUrl: job.data.webhookCallbackUrl,
                     webhookCallbackMethod: job.data.method,
+                    smtpUser: job.data.smtpUser,
+                    smtpPass: job.data.smtpPass,
                 },
                 {
                     attempts: config.maxAttempts,

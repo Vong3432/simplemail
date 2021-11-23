@@ -2,8 +2,9 @@ import { Queue, Worker } from "bullmq";
 import got, { Method } from "got/dist/source";
 import { MailJob } from "../interfaces/mail.interface";
 import config from "../config";
+import { GmailAuthConfig } from "../interfaces/gmail-auth.interface";
 
-const mailQueue = new Queue<MailJob>(config.queueName, {
+const mailQueue = new Queue<MailJob & GmailAuthConfig>(config.queueName, {
     connection: config.connection,
 });
 
@@ -13,6 +14,8 @@ export const webhooksWorker = new Worker<{
     result: {};
     webhookCallbackUrl: string;
     webhookCallbackMethod: Method;
+    smtpUser: string;
+    smtpPass: string;
 }>(
     config.webhookQueueName,
     async (job) => {
@@ -37,7 +40,7 @@ export const webhooksWorker = new Worker<{
 
         } else {
             console.log(
-                `Giving up, lets mail user about webhook not working for "${result}"`
+                `Giving up, lets mail user about webhook not working for "${JSON.stringify(result)}"`
             );
             // Send an email to the user about failing webhooks.
             return mailQueue.add("webhook-failure", {
@@ -46,7 +49,9 @@ export const webhooksWorker = new Worker<{
                     subject: "Your Webhook is failing",
                     text: `We are not able to send reqeust to your callback url ${webhookCallbackUrl} for ${maxWebhookAttempts} times.`,
                     to: job.data.fromEmail,
-                }
+                },
+                user: job.data.smtpUser,
+                password: job.data.smtpPass,
             });
         }
     },
