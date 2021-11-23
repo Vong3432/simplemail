@@ -8,6 +8,7 @@ const app = express();
 const port = process.env.PORT || 5003;
 
 app.use(express.json());
+app.set('trust proxy', true)
 
 const taskQueue = new Queue(config.taskQueueName, { connection: config.connection });
 
@@ -24,8 +25,6 @@ app.post('/send-email', checkSendEmailSchema, async (req: Request, res: any) => 
     const smtpUser = req.body.smtp_user
     const smtpPass = req.body.smtp_pass
     const isLocalhost = req.body.localhost ?? false
-
-    console.log(`Received task send email to: "${targetEmail}"...`);
 
     taskQueue
         .add(

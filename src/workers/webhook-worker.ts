@@ -35,8 +35,10 @@ export const webhooksWorker = new Worker<{
             const response = await got(webhookCallbackUrl, {
                 method: webhookCallbackMethod,
                 json: webhookCallbackMethod === "GET" ? undefined : { ...result },
-                localAddress: job.data.localhost ? job.data.localhost.ip : undefined,
-                host: job.data.localhost ? job.data.localhost.host : undefined,
+                localAddress: job.data.localhost?.ip,
+                https: {
+                    rejectUnauthorized: job.data.localhost ? false : true
+                }
             })
 
             if (response.statusCode >= 200 && response.statusCode < 300)
