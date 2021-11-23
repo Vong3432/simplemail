@@ -42,7 +42,7 @@ export const webhooksWorker = new Worker<{
             // Send an email to the user about failing webhooks.
             return mailQueue.add("webhook-failure", {
                 mailOpts: {
-                    from: config.fromEmail!,
+                    from: job.data.fromEmail,
                     subject: "Your Webhook is failing",
                     text: `We are not able to send reqeust to your callback url ${webhookCallbackUrl} for ${maxWebhookAttempts} times.`,
                     to: job.data.fromEmail,
