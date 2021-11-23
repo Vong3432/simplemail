@@ -41,7 +41,10 @@ app.post('/send-email', checkSendEmailSchema, async (req: Request, res: any) => 
                 smtpUser,
                 smtpPass,
                 webhookCallbackData,
-                isLocalhost
+                localhost: isLocalhost === true ? {
+                    host: req.hostname,
+                    ip: req.ip,
+                } : undefined
             })
         .then(
             (job) => {
