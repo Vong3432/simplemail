@@ -18,6 +18,7 @@ export const taskWorker = new Worker<{
     smtpPass: string,
     html?: string,
     webhookCallbackData?: {}
+    isLocalhost: boolean
 }>(
     config.taskQueueName,
     async (job) => {
@@ -54,6 +55,7 @@ export const taskWorker = new Worker<{
                     webhookCallbackMethod: job.data.method,
                     smtpUser: job.data.smtpUser,
                     smtpPass: job.data.smtpPass,
+                    isLocalhost: job.data.isLocalhost,
                 },
                 {
                     attempts: config.maxAttempts,

@@ -1,5 +1,5 @@
 import { Queue } from 'bullmq';
-import express from 'express'
+import express, { Request } from 'express'
 import { Method } from 'got/dist/source';
 import config from './config';
 import checkSendEmailSchema from './middlewares/send-email-schema-check';
@@ -11,7 +11,7 @@ app.use(express.json());
 
 const taskQueue = new Queue(config.taskQueueName, { connection: config.connection });
 
-app.post('/send-email', checkSendEmailSchema, async (req: any, res: any) => {
+app.post('/send-email', checkSendEmailSchema, async (req: Request, res: any) => {
     const targetEmail = req.body.email
     // const fromEmail = req.body.from
     const fromEmail = req.body.from
@@ -23,6 +23,7 @@ app.post('/send-email', checkSendEmailSchema, async (req: any, res: any) => {
     const webhookCallbackData = req.body.callback_data
     const smtpUser = req.body.smtp_user
     const smtpPass = req.body.smtp_pass
+    const isLocalhost = req.body.localhost ?? false
 
     console.log(`Received task send email to: "${targetEmail}"...`);
 
@@ -40,6 +41,7 @@ app.post('/send-email', checkSendEmailSchema, async (req: any, res: any) => {
                 smtpUser,
                 smtpPass,
                 webhookCallbackData,
+                isLocalhost
             })
         .then(
             (job) => {
