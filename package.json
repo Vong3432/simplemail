@@ -11,7 +11,8 @@
     "start": "concurrently \"node dist/src/index.js \" \"node dist/src/workers/index.js\" ",
     "start:server": "tsc && node dist/src/test-server.js",
     "build": "npx tsc",
-    "test": "cross-env NODE_ENV=test jest --testTimeout=10000"
+    "test": "cross-env NODE_ENV=test jest --testTimeout=10000",
+    "heroku-postbuild": "node dist/src/workers/index.js"
   },
   "keywords": [],
   "author": "",
