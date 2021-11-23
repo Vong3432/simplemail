@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Mail service that sends email",
   "main": "dist/src/index.js",
+  "engines": {
+    "node": "14.x"
+  },
   "scripts": {
     "start:dev": "ts-node-dev ./src",
     "start:workers": "tsc && node dist/src/workers/index.js",
