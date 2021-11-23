@@ -1,0 +1,40 @@
+{
+  "name": "mailer-service",
+  "version": "1.0.0",
+  "description": "Mail service that sends email",
+  "main": "dist/src/index.js",
+  "scripts": {
+    "start:dev": "ts-node-dev ./src",
+    "start:workers": "tsc && node dist/src/workers/index.js",
+    "start:workers-dev": "ts-node-dev ./src/workers",
+    "start": "tsc && node dist/src/index.js",
+    "start:server": "tsc && node dist/src/test-server.js",
+    "build": "npx tsc",
+    "test": "cross-env NODE_ENV=test jest --testTimeout=10000"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/jest": "^27.0.3",
+    "@types/node": "^16.11.9",
+    "@types/nodemailer": "^6.4.4",
+    "@types/supertest": "^2.0.11",
+    "cross-env": "^7.0.3",
+    "jest": "^27.3.1",
+    "supertest": "^6.1.6",
+    "ts-jest": "^27.0.7",
+    "ts-node": "^10.4.0",
+    "ts-node-dev": "^1.1.8",
+    "typescript": "^4.5.2"
+  },
+  "dependencies": {
+    "bullmq": "^1.54.2",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "got": "^11.8.3",
+    "nodemailer": "^6.7.1",
+    "puppeteer": "^11.0.0"
+  }
+}
