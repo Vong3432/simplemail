@@ -7,7 +7,8 @@
     "start:dev": "ts-node-dev ./src",
     "start:workers": "tsc && node dist/src/workers/index.js",
     "start:workers-dev": "ts-node-dev ./src/workers",
-    "start": "tsc && node dist/src/index.js",
+    "start:app": "tsc && node dist/src/index.js",
+    "start": "concurrently \"node dist/src/index.js \" \"node dist/src/workers/index.js\" ",
     "start:server": "tsc && node dist/src/test-server.js",
     "build": "npx tsc",
     "test": "cross-env NODE_ENV=test jest --testTimeout=10000"
@@ -21,6 +22,7 @@
     "@types/node": "^16.11.9",
     "@types/nodemailer": "^6.4.4",
     "@types/supertest": "^2.0.11",
+    "concurrently": "^6.4.0",
     "cross-env": "^7.0.3",
     "jest": "^27.3.1",
     "supertest": "^6.1.6",
