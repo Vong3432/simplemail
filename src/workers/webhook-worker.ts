@@ -16,10 +16,10 @@ export const webhooksWorker = new Worker<{
     webhookCallbackMethod: Method;
     smtpUser: string;
     smtpPass: string;
-    localhost?: {
-        ip: string;
-        host: string;
-    }
+    // localhost?: {
+    //     ip: string;
+    //     host: string;
+    // }
 }>(
     config.webhookQueueName,
     async (job) => {
@@ -35,10 +35,10 @@ export const webhooksWorker = new Worker<{
             const response = await got(webhookCallbackUrl, {
                 method: webhookCallbackMethod,
                 json: webhookCallbackMethod === "GET" ? undefined : { ...result },
-                localAddress: job.data.localhost?.ip,
-                https: {
-                    rejectUnauthorized: job.data.localhost ? false : true
-                }
+                // localAddress: job.data.localhost?.ip,
+                // https: {
+                //     rejectUnauthorized: job.data.localhost ? false : true
+                // }
             })
 
             if (response.statusCode >= 200 && response.statusCode < 300)

@@ -24,7 +24,7 @@ app.post('/send-email', checkSendEmailSchema, async (req: Request, res: any) => 
     const webhookCallbackData = req.body.callback_data
     const smtpUser = req.body.smtp_user
     const smtpPass = req.body.smtp_pass
-    const isLocalhost = req.body.localhost ?? false
+    // const isLocalhost = req.body.localhost ?? false
 
     taskQueue
         .add(
@@ -40,10 +40,10 @@ app.post('/send-email', checkSendEmailSchema, async (req: Request, res: any) => 
                 smtpUser,
                 smtpPass,
                 webhookCallbackData,
-                localhost: isLocalhost === true ? {
-                    host: req.hostname,
-                    ip: req.ip,
-                } : undefined
+                // localhost: isLocalhost === true ? {
+                //     host: req.hostname,
+                //     ip: req.ip,
+                // } : undefined
             })
         .then(
             (job) => {
