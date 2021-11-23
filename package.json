@@ -3,19 +3,14 @@
   "version": "1.0.0",
   "description": "Mail service that sends email",
   "main": "dist/src/index.js",
-  "engines": {
-    "node": "14.x"
-  },
   "scripts": {
     "start:dev": "ts-node-dev ./src",
     "start:workers": "tsc && node dist/src/workers/index.js",
     "start:workers-dev": "ts-node-dev ./src/workers",
-    "start:app": "tsc && node dist/src/index.js",
-    "start": "concurrently \"node dist/src/index.js \" \"node dist/src/workers/index.js\" ",
+    "start": "tsc && node dist/src/index.js",
     "start:server": "tsc && node dist/src/test-server.js",
     "build": "npx tsc",
-    "test": "cross-env NODE_ENV=test jest --testTimeout=10000",
-    "heroku-postbuild": "node dist/src/workers/index.js"
+    "test": "cross-env NODE_ENV=test jest --testTimeout=10000"
   },
   "keywords": [],
   "author": "",
