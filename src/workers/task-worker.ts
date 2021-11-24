@@ -12,7 +12,7 @@ export const taskWorker = new Worker<{
     fromEmail: string,
     subject: string,
     text: string,
-    webhookCallbackUrl: string,
+    webhookCallbackUrl?: string,
     method: Method,
     smtpUser: string,
     smtpPass: string,
@@ -42,6 +42,8 @@ export const taskWorker = new Worker<{
                 attempts: config.maxAttemptsForEmail,
                 backoff: { type: "exponential", delay: config.backoffDelay },
             })
+
+            if (!job.data.webhookCallbackUrl) return;
 
             const result = {
                 msg: `Send email successfully, calling callback for [${job.data.method}]: ${job.data.webhookCallbackUrl}`,

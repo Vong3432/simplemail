@@ -21,12 +21,11 @@ export default function checkSendEmailSchema(req: Request<any, any, SendMailRequ
         from,
         subject,
         text,
-        callback_url,
         smtp_user,
         smtp_pass
     } = req.body
 
-    if (!email || !from || !subject || !text || !callback_url || !smtp_pass || !smtp_user) {
+    if (!email || !from || !subject || !text || !smtp_pass || !smtp_user) {
         return res.status(500).json({
             msg: 'Invalid data passed'
         })
