@@ -18,6 +18,7 @@ export const taskWorker = new Worker<{
     smtpPass: string,
     html?: string,
     webhookCallbackData?: {},
+    delayInMs: number,
     // localhost?: {
     //     ip: string;
     //     host: string;
@@ -41,6 +42,7 @@ export const taskWorker = new Worker<{
             }, {
                 attempts: config.maxAttemptsForEmail,
                 backoff: { type: "exponential", delay: config.backoffDelay },
+                delay: job.data.delayInMs
             })
 
             if (!job.data.webhookCallbackUrl) return;
