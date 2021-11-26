@@ -28,7 +28,6 @@ export default async (job: Job<EncryptedResult>) => {
     //     );
     // }
     const decrypted = decrypt<GmailAuthConfig & MailJob>(job.data)
-    console.log(`Decrypted ${JSON.stringify(decrypted)}`)
 
     const transporter = nodemailer.createTransport({
         service: 'Gmail',
