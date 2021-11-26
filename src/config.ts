@@ -32,5 +32,9 @@ export default {
         max: parseInt(process.env.MAX_LIMIT || "5"),
         duration: parseInt(process.env.DURATION_LIMIT || "1000")
     },
-    userPort: process.env.USER_PORT || 8080
+    userPort: process.env.USER_PORT || 8080,
+    encryption: {
+        algorithm: process.env.ENCRYPTION_ALGORITHM,
+        secretKey: process.env.ENCRYPTION_SECRET_KEY
+    }
 };

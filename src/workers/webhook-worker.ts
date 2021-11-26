@@ -1,29 +1,21 @@
 import { Queue, Worker } from "bullmq";
 import got, { Method } from "got/dist/source";
-import { MailJob } from "../interfaces/mail.interface";
 import config from "../config";
-import { GmailAuthConfig } from "../interfaces/gmail-auth.interface";
+import { EncryptedResult } from "../helpers/encryption/crypto";
 
-const mailQueue = new Queue<MailJob & GmailAuthConfig>(config.queueName, {
+const mailQueue = new Queue<EncryptedResult>(config.queueName, {
     connection: config.connection,
 });
 
 export const webhooksWorker = new Worker<{
-    targetEmail: string;
-    fromEmail: string;
-    result: {};
+    encrypted: EncryptedResult;
     webhookCallbackUrl: string;
     webhookCallbackMethod: Method;
-    smtpUser: string;
-    smtpPass: string;
-    // localhost?: {
-    //     ip: string;
-    //     host: string;
-    // }
+    result: {}
 }>(
     config.webhookQueueName,
     async (job) => {
-        const { result, targetEmail, webhookCallbackUrl, webhookCallbackMethod } = job.data
+        const { result, webhookCallbackUrl, webhookCallbackMethod } = job.data
         const maxWebhookAttempts = config.maxAttempts - config.maxAttemptsForEmail;
 
         if (job.attemptsMade < maxWebhookAttempts) {
@@ -51,16 +43,7 @@ export const webhooksWorker = new Worker<{
                 `Giving up, lets mail user about webhook not working for "${JSON.stringify(result)}"`
             );
             // Send an email to the user about failing webhooks.
-            return mailQueue.add("webhook-failure", {
-                mailOpts: {
-                    from: job.data.fromEmail,
-                    subject: "Your Webhook is failing",
-                    text: `We are not able to send reqeust to your callback url ${webhookCallbackUrl} for ${maxWebhookAttempts} times.`,
-                    to: job.data.fromEmail,
-                },
-                user: job.data.smtpUser,
-                password: job.data.smtpPass,
-            });
+            return mailQueue.add("webhook-failure", job.data.encrypted);
         }
     },
     {

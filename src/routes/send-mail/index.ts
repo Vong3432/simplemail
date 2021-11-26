@@ -2,49 +2,35 @@ import { Queue } from "bullmq";
 import express, { Request } from "express"
 
 // middlewares
-import checkSendEmailSchema from "../../middlewares/send-email-schema-check";
+import checkSendEmailSchema, { SendMailRequestBody } from "../../middlewares/send-email-schema-check";
 import timeConversion from "../../middlewares/time-conversion";
+import encryptBody from "../../middlewares/encrypt-body";
 
 import config from "../../config";
 import { Method } from "got/dist/source";
 
+import { EncryptedResult } from "../../helpers/encryption/crypto";
+
 const router = express.Router()
 const taskQueue = new Queue(config.taskQueueName, { connection: config.connection });
 
-router.post('/send-email', [checkSendEmailSchema, timeConversion], async (req: Request, res: any) => {
+router.post('/send-email', [checkSendEmailSchema, timeConversion, encryptBody], async (req: Request<any, any, SendMailRequestBody & { encrypted: EncryptedResult } & { delayInMs?: number }, any>, res: any) => {
     const targetEmail = req.body.email
-    // const fromEmail = req.body.from
-    const fromEmail = req.body.from
-    const subject = req.body.subject
-    const text = req.body.text
-    const webhookCallbackUrl = req.body.callback_url
-    const method: Method = req.body.method
-    const html = req.body.html
-    const webhookCallbackData = req.body.callback_data
-    const smtpUser = req.body.smtp_user
-    const smtpPass = req.body.smtp_pass
+    const encryptedText = req.body.encrypted
     const delayInMs = req.body.delayInMs
-    // const isLocalhost = req.body.localhost ?? false
+    const webhookCallbackUrl = req.body.callback_url
+    const webhookCallbackData = req.body.callback_data
+    const webhookCallbackMethod = req.body.method
 
     taskQueue
         .add(
             targetEmail,
             {
-                targetEmail,
-                fromEmail,
-                subject,
-                text,
-                webhookCallbackUrl,
-                method,
-                html,
-                smtpUser,
-                smtpPass,
-                webhookCallbackData,
                 delayInMs,
-                // localhost: isLocalhost === true ? {
-                //     host: req.hostname,
-                //     ip: req.ip,
-                // } : undefined
+                encrypted: encryptedText,
+                webhookCallbackUrl,
+                webhookCallbackData,
+                webhookCallbackMethod
             })
         .then(
             (job) => {

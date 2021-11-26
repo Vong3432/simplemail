@@ -1,10 +1,11 @@
 import { Job } from 'bullmq'
 import nodemailer from 'nodemailer'
 import { GmailAuthConfig } from '../interfaces/gmail-auth.interface'
-import config from '../config'
 import { MailJob } from '../interfaces/mail.interface'
+import config from '../config'
+import { decrypt, EncryptedResult } from '../helpers/encryption/crypto'
 
-export default async (job: Job<MailJob & GmailAuthConfig>) => {
+export default async (job: Job<EncryptedResult>) => {
     // let attachments;
 
     // if (job.data.htmlAttachments) {
@@ -26,13 +27,14 @@ export default async (job: Job<MailJob & GmailAuthConfig>) => {
     //         })
     //     );
     // }
-
+    const decrypted = decrypt<GmailAuthConfig & MailJob>(job.data)
+    console.log(`Decrypted ${JSON.stringify(decrypted)}`)
 
     const transporter = nodemailer.createTransport({
         service: 'Gmail',
         auth: {
-            user: job.data.user,
-            pass: job.data.password,
+            user: decrypted.user,
+            pass: decrypted.password,
         }
     })
 
@@ -41,7 +43,7 @@ export default async (job: Job<MailJob & GmailAuthConfig>) => {
     );
 
     const info = await transporter.sendMail({
-        ...job.data.mailOpts,
+        ...decrypted.mailOpts,
         // attachments
     })
 

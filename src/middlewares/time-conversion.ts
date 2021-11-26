@@ -44,7 +44,12 @@ export default function timeConversion(req: Request<any, any, DelayRequestBody, 
             return res.status(500).json({
                 msg: `[send_at] is more than 7 days (has gap in days as: ${gapInDays}), please make sure you provide date that has less or equal than 7 days.`
             })
+        } else if (gapInDays < 0) {
+            return res.status(500).json({
+                msg: `[send_at] is outdated.`
+            })
         }
+
         console.log(duration.days())
 
         const calculatedMs = duration.asMilliseconds()
