@@ -5,6 +5,7 @@ import { EncryptedResult } from "../helpers/encryption/crypto";
 
 const mailQueue = new Queue<EncryptedResult>(config.queueName, {
     connection: config.connection,
+    defaultJobOptions: { removeOnComplete: true, removeOnFail: 500, }
 });
 
 export const webhooksWorker = new Worker<{

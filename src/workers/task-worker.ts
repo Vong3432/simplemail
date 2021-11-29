@@ -1,12 +1,10 @@
 import { Queue, Worker } from "bullmq";
-import { MailJob } from "../interfaces/mail.interface";
 import config from '../config'
 import { Method } from "got/dist/source";
-import { GmailAuthConfig } from "../interfaces/gmail-auth.interface";
 import { EncryptedResult } from "../helpers/encryption/crypto";
 
-const webhooksQueue = new Queue(config.webhookQueueName, { connection: config.connection })
-const mailQueue = new Queue<EncryptedResult>(config.queueName, { connection: config.connection })
+const webhooksQueue = new Queue(config.webhookQueueName, { connection: config.connection, defaultJobOptions: { removeOnComplete: true, removeOnFail: 500, } })
+const mailQueue = new Queue<EncryptedResult>(config.queueName, { connection: config.connection, defaultJobOptions: { removeOnComplete: true, removeOnFail: 500, } })
 
 export const taskWorker = new Worker<{
     encrypted: EncryptedResult;
@@ -26,7 +24,7 @@ export const taskWorker = new Worker<{
             }, {
                 attempts: config.maxAttemptsForEmail,
                 backoff: { type: "exponential", delay: config.backoffDelay },
-                delay: job.data.delayInMs
+                delay: job.data.delayInMs,
             })
 
             if (!job.data.webhookCallbackUrl) return;

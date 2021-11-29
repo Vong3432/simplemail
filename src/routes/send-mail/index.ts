@@ -5,14 +5,12 @@ import express, { Request } from "express"
 import checkSendEmailSchema, { SendMailRequestBody } from "../../middlewares/send-email-schema-check";
 import timeConversion from "../../middlewares/time-conversion";
 import encryptBody from "../../middlewares/encrypt-body";
-
 import config from "../../config";
-import { Method } from "got/dist/source";
 
 import { EncryptedResult } from "../../helpers/encryption/crypto";
 
 const router = express.Router()
-const taskQueue = new Queue(config.taskQueueName, { connection: config.connection });
+const taskQueue = new Queue(config.taskQueueName, { connection: config.connection, defaultJobOptions: { removeOnComplete: true, removeOnFail: 500, } });
 
 router.post('/send-email', [checkSendEmailSchema, timeConversion, encryptBody], async (req: Request<any, any, SendMailRequestBody & { encrypted: EncryptedResult } & { delayInMs?: number }, any>, res: any) => {
     const targetEmail = req.body.email
