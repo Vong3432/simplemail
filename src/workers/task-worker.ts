@@ -3,7 +3,7 @@ import config from '../config'
 import { Method } from "got/dist/source";
 import { EncryptedResult } from "../helpers/encryption/crypto";
 
-const flowProducer = new FlowProducer()
+const flowProducer = new FlowProducer({ connection: config.connection })
 export const webhooksQueue = new Queue(config.webhookQueueName, { connection: config.connection, defaultJobOptions: { removeOnComplete: true, removeOnFail: 500, } })
 export const mailQueue = new Queue<EncryptedResult>(config.queueName, { connection: config.connection, defaultJobOptions: { removeOnComplete: true, removeOnFail: 500, } })
 
