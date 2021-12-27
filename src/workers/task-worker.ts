@@ -1,12 +1,15 @@
-import { Queue, Worker } from "bullmq";
+import { FlowProducer, Queue, Worker } from "bullmq";
 import config from '../config'
 import { Method } from "got/dist/source";
 import { EncryptedResult } from "../helpers/encryption/crypto";
 
-const webhooksQueue = new Queue(config.webhookQueueName, { connection: config.connection, defaultJobOptions: { removeOnComplete: true, removeOnFail: 500, } })
-const mailQueue = new Queue<EncryptedResult>(config.queueName, { connection: config.connection, defaultJobOptions: { removeOnComplete: true, removeOnFail: 500, } })
+const flowProducer = new FlowProducer()
+export const webhooksQueue = new Queue(config.webhookQueueName, { connection: config.connection, defaultJobOptions: { removeOnComplete: true, removeOnFail: 500, } })
+export const mailQueue = new Queue<EncryptedResult>(config.queueName, { connection: config.connection, defaultJobOptions: { removeOnComplete: true, removeOnFail: 500, } })
 
 export const taskWorker = new Worker<{
+    customJobId: string,
+    customMailJobId: string,
     encrypted: EncryptedResult;
     delayInMs?: number;
     webhookCallbackUrl?: string;
@@ -17,36 +20,43 @@ export const taskWorker = new Worker<{
     async (job) => {
         try {
             console.log(`Processing job ${job.id} of type ${job.name}`);
-            console.log(`Processing data ${JSON.stringify(job.data)}`)
+            // console.log(`Processing data ${JSON.stringify(job.data)}`)
 
-            await mailQueue.add("send-email", {
-                ...job.data.encrypted
-            }, {
-                attempts: config.maxAttemptsForEmail,
-                backoff: { type: "exponential", delay: config.backoffDelay },
-                delay: job.data.delayInMs,
-            })
-
-            if (!job.data.webhookCallbackUrl) return;
-
-            const result = {
-                msg: `Send email successfully, calling callback`,
-                data: job.data.webhookCallbackData
-            }
-
-            return webhooksQueue.add(
-                job.name,
-                {
+            const flow = await flowProducer.add({
+                name: job.name,
+                queueName: config.webhookQueueName,
+                data: {
                     encrypted: job.data.encrypted,
                     webhookCallbackUrl: job.data.webhookCallbackUrl,
                     webhookCallbackMethod: job.data.webhookCallbackMethod,
-                    result,
+                    result: {
+                        msg: `Send email successfully, calling callback`,
+                        data: job.data.webhookCallbackData
+                    },
                 },
-                {
+                opts: {
                     attempts: config.maxAttempts,
                     backoff: { type: "exponential", delay: config.backoffDelay },
-                }
-            );
+                    jobId: job.data.customJobId,
+                },
+                children: job.data.webhookCallbackUrl ? [
+                    {
+                        name: "send-email",
+                        data: {
+                            ...job.data.encrypted
+                        },
+                        queueName: config.queueName,
+                        opts: {
+                            attempts: config.maxAttemptsForEmail,
+                            backoff: { type: "exponential", delay: config.backoffDelay },
+                            delay: job.data.delayInMs,
+                            jobId: job.data.customMailJobId,
+                        },
+                    },
+                ] : undefined
+            })
+
+            console.log("Flow done")
         } catch (error) {
             console.log("err task worker:", error)
         }
