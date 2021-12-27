@@ -20,9 +20,9 @@ export const taskWorker = new Worker<{
     async (job) => {
         try {
             console.log(`Processing job ${job.id} of type ${job.name}`);
-            // console.log(`Processing data ${JSON.stringify(job.data)}`)
+            console.log(`Processing data ${JSON.stringify(job.data)}`)
 
-            const flow = await flowProducer.add({
+            const flow = await flowProducer.add(job.data.webhookCallbackUrl ? {
                 name: job.name,
                 queueName: config.webhookQueueName,
                 data: {
@@ -54,6 +54,18 @@ export const taskWorker = new Worker<{
                         },
                     },
                 ] : undefined
+            } : {
+                name: "send-email",
+                data: {
+                    ...job.data.encrypted
+                },
+                queueName: config.queueName,
+                opts: {
+                    attempts: config.maxAttemptsForEmail,
+                    backoff: { type: "exponential", delay: config.backoffDelay },
+                    delay: job.data.delayInMs,
+                    jobId: job.data.customMailJobId,
+                },
             })
 
             console.log("Flow done")
