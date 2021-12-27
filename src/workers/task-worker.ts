@@ -39,7 +39,7 @@ export const taskWorker = new Worker<{
                     backoff: { type: "exponential", delay: config.backoffDelay },
                     jobId: job.data.customJobId,
                 },
-                children: job.data.webhookCallbackUrl ? [
+                children: [
                     {
                         name: "send-email",
                         data: {
@@ -53,7 +53,7 @@ export const taskWorker = new Worker<{
                             jobId: job.data.customMailJobId,
                         },
                     },
-                ] : undefined
+                ]
             } : {
                 name: "send-email",
                 data: {

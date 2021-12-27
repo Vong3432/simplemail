@@ -46,7 +46,7 @@ router.post('/send-email', [checkSendEmailSchema, timeConversion, encryptBody], 
                 if (delayInMs) {
                     res.status(201).json({
                         msg: "Success",
-                        cancelID: customJobId,
+                        cancelID: webhookCallbackUrl ? customJobId : customMailJobId,
                         rescheduleID: customMailJobId,
                     })
                 }
@@ -101,7 +101,7 @@ router.delete('/cancel-email/:cancelID', async (req, res) => {
             throw new InvalidJobIdError('Job ID not found in request parameter')
         }
 
-        const job = await webhooksQueue.getJob(jobId)
+        const job = await webhooksQueue.getJob(jobId) ?? await mailQueue.getJob(jobId)
 
         if (!job) throw new InvalidJobIdError("Cannot find matched result with this ID.")
 
