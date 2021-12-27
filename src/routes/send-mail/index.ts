@@ -86,7 +86,7 @@ router.put('/reschedule-email/:rescheduleID', timeConversion, async (req, res) =
 
     } catch (error) {
         if (error instanceof InvalidJobIdError) {
-            return res.status(500).json({ msg: `Invalid ID: ${error}` })
+            return res.status(500).json({ msg: `${error}` })
         } else {
             return res.status(500).json({ msg: `Unable to reschedule email.` })
         }
@@ -116,9 +116,9 @@ router.delete('/cancel-email/:cancelID', async (req, res) => {
 
     } catch (error) {
         if (error instanceof InvalidJobIdError) {
-            return res.status(500).json({ msg: `Invalid ID: ${error}` })
+            return res.status(500).json({ msg: `${error}` })
         } else if (error instanceof CancelJobError) {
-            return res.status(500).json({ msg: `Unable to cancel email: ${error}` })
+            return res.status(500).json({ msg: `${error}` })
         } else {
             return res.status(500).json({ msg: `Unable to cancel email.` })
         }
