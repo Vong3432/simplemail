@@ -43,11 +43,20 @@ router.post('/send-email', [checkSendEmailSchema, timeConversion, encryptBody], 
         .then(
             (job) => {
 
-                res.status(201).json({
-                    msg: "Success",
-                    cancelID: customJobId,
-                    rescheduleID: customMailJobId,
-                })
+                if (delayInMs) {
+                    res.status(201).json({
+                        msg: "Success",
+                        cancelID: customJobId,
+                        rescheduleID: customMailJobId,
+                    })
+                }
+
+                else {
+                    res.status(201).json({
+                        msg: "Success",
+                    })
+                }
+
             },
             (err) => {
                 console.error("Client server err", err)
